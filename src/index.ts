@@ -2,7 +2,7 @@ import { Hono } from 'hono'
 
 const app = new Hono()
 
-// 模擬資料庫 (在實際應用中，建議搭配 Cloudflare KV 或 D1 資料庫)
+// 模擬資料庫 
 let clips = [
   {
     "id": "DeafTentativePuppyAMPEnergy",
