@@ -1,6 +1,6 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "my-api",
+  "name": "api-server",
   "main": "src/index.ts",
   "compatibility_date": "2026-01-29"
   // "compatibility_flags": [
