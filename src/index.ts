@@ -1,5 +1,6 @@
 import { Hono } from 'hono'
 
+// test
 type Bindings = {
   DB: D1Database
 }
