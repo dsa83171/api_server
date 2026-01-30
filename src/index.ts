@@ -2,7 +2,7 @@ import { Hono } from 'hono'
 
 // test
 type Bindings = {
-  DB: D1Database
+  api_db: D1Database
 }
 
 const app = new Hono<{ Bindings: Bindings }>()
@@ -10,7 +10,7 @@ const app = new Hono<{ Bindings: Bindings }>()
 // GET: 取得所有影片 (按觀看次數排序)
 app.get('/api/clips', async (c) => {
   try {
-    const { results } = await c.env.DB.prepare(
+    const { results } = await c.env.api_db.prepare(
       "SELECT * FROM clips ORDER BY view_count DESC"
     ).all();
     return c.json({ data: results });
@@ -23,7 +23,7 @@ app.get('/api/clips', async (c) => {
 app.post('/api/clips', async (c) => {
   const body = await c.req.json();
   try {
-    await c.env.DB.prepare(`
+    await c.env.api_db.prepare(`
       INSERT INTO clips (
         id, url, embed_url, broadcaster_id, broadcaster_name, 
         creator_id, creator_name, video_id, game_id, language, 
