@@ -41,7 +41,7 @@ app.post('/api/clips', async (c) => {
 
     return c.json({ message: "成功存入 D1 資料庫" }, 201);
   } catch (e) {
-    return c.json({ error: "寫入失敗，可能 ID 已存在" }, 400);
+    return c.json({ error: e }, 400);
   }
 })
 
