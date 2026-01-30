@@ -1,3 +1,4 @@
+--DROP TABLE IF EXISTS clips; -- 先刪除舊的表
 CREATE TABLE IF NOT EXISTS clips (
   id TEXT PRIMARY KEY,
   url TEXT,
