@@ -1,54 +1,40 @@
 import { Hono } from 'hono'
 
-const app = new Hono()
+type Bindings = {
+  DB: D1Database
+}
 
-// 模擬資料庫 
-let clips = [
-  {
-    "id": "DeafTentativePuppyAMPEnergy",
-    "url": "https://www.twitch.tv/rockmanchronicles/clip/DeafTentativePuppyAMPEnergy",
-    "broadcaster_name": "RockmanChronicles",
-    "title": "穩",
-    "view_count": 21
-  },
-  {
-    "id": "KathishSlipperyPotDerp-w76RpUrc6b0QhNoF",
-    "url": "https://www.twitch.tv/append/clip/KathishSlipperyPotDerp-w76RpUrc6b0QhNoF",
-    "broadcaster_name": "Append",
-    "title": "物理譴責FM",
-    "view_count": 38
+const app = new Hono<{ Bindings: Bindings }>()
+
+// GET: 取得所有影片 (按觀看次數排序)
+app.get('/api/clips', async (c) => {
+  try {
+    const { results } = await c.env.DB.prepare(
+      "SELECT * FROM clips ORDER BY view_count DESC"
+    ).all();
+    return c.json({ data: results });
+  } catch (e) {
+    return c.json({ error: "資料庫讀取失敗" }, 500);
   }
-]
-
-// GET: 取得清單
-app.get('/api/clips', (c) => {
-  return c.json({ data: clips })
 })
 
-// GET: 取得單一資料
-app.get('/api/clips/:id', (c) => {
-  const id = c.req.param('id')
-  const clip = clips.find(item => item.id === id)
-  
-  if (!clip) {
-    return c.json({ message: '找不到該影片' }, 404)
-  }
-  return c.json(clip)
-})
-
-// POST: 新增資料
+// POST: 新增影片
 app.post('/api/clips', async (c) => {
-  const body = await c.req.json()
-  const newClip = {
-    id: body.id,
-    url: body.url,
-    broadcaster_name: body.broadcaster_name,
-    title: body.title,
-    view_count: body.view_count || 0
+  const body = await c.req.json();
+  const { id, url, broadcaster_name, creator_name, title, view_count, created_at, thumbnail_url } = body;
+
+  try {
+    await c.env.DB.prepare(
+      `INSERT INTO clips (id, url, broadcaster_name, creator_name, title, view_count, created_at, thumbnail_url) 
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
+    )
+    .bind(id, url, broadcaster_name, creator_name, title, view_count, created_at, thumbnail_url)
+    .run();
+
+    return c.json({ message: "成功存入 D1 資料庫" }, 201);
+  } catch (e) {
+    return c.json({ error: "寫入失敗，可能 ID 已存在" }, 400);
   }
-  
-  clips.push(newClip)
-  return c.json({ message: '新增成功', data: newClip }, 201)
 })
 
 export default app
