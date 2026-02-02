@@ -22,7 +22,19 @@ app.get('/api/clips', async (c) => {
 })
 
 // GET: 取得所有影片 (按觀看次數排序)
-app.get('/api/clips/:id', async (c) => {
+app.get('/api/clips/ids', async (c) => {
+  try {
+    const { results } = await c.env.api_db.prepare(
+      "SELECT id FROM clips ORDER BY created_at"
+    ).all();
+    return c.json({ data: results });
+  } catch (e) {
+    return c.json({ error: "資料庫讀取失敗" }, 500);
+  }
+})
+
+// GET: 取得所有影片 (按觀看次數排序)
+app.get('/api/clips/id/:id', async (c) => {
   try {
     const { results } = await c.env.api_db.prepare(
       "SELECT * FROM clips WHERE id = ? "
