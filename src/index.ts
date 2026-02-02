@@ -1,23 +1,38 @@
 import { Hono } from 'hono'
+import { cors } from 'hono/cors'
 
-// test
 type Bindings = {
   api_db: D1Database
 }
 
 const app = new Hono<{ Bindings: Bindings }>()
 
+app.use('/api/*', cors())
+
 // GET: 取得所有影片 (按觀看次數排序)
 app.get('/api/clips', async (c) => {
   try {
     const { results } = await c.env.api_db.prepare(
-      "SELECT * FROM clips ORDER BY view_count DESC"
+      "SELECT * FROM clips ORDER BY created_at DESC"
     ).all();
     return c.json({ data: results });
   } catch (e) {
     return c.json({ error: "資料庫讀取失敗" }, 500);
   }
 })
+
+// GET: 取得所有影片 (按觀看次數排序)
+app.get('/api/clips/:id', async (c) => {
+  try {
+    const { results } = await c.env.api_db.prepare(
+      "SELECT * FROM clips WHERE id = ? "
+    ).bind(c.req.param("id")).all();
+    return c.json({ data: results });
+  } catch (e) {
+    return c.json({ error: "資料庫讀取失敗" }, 500);
+  }
+})
+
 
 // POST: 新增影片
 app.post('/api/clips', async (c) => {
